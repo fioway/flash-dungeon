@@ -1,25 +1,12 @@
-# Project instructions
+# Copilot instructions
 
-Flash Dungeon: a simple 2D browser game. Web first, possibly iOS (Capacitor) and Steam (Electron) later.
+The full project instructions are in `AGENTS.md` at the repo root. Read it first; it is the source of truth.
 
-## Stack
-- Phaser (check package.json for the exact version; do not suggest APIs from other major versions)
-- Vite, plain JavaScript (ES modules)
-- No other runtime dependencies unless asked
-
-## Structure
-- `src/main.js`: game config and boot
-- `src/scenes/`: one scene per file
-- `src/analytics/track.js`: the only place analytics code lives
-- `public/assets/`: images, audio, level JSON
-
-## Rules
-- All analytics goes through `track(eventName, props)`. Never call an analytics SDK directly.
-- Never log personal data (names, emails, precise location, free text).
-- Input must work with touch, keyboard, and (later) gamepad, mapped to the same actions.
-- Load assets by key (`'player'`, `'sword'`), never by hard-coded path inside gameplay code, so placeholder art can be swapped for final art.
-- Use pixel-art settings (`pixelArt: true`, integer scaling where possible).
-- Destroy listeners, timers, and tweens when a scene shuts down.
-- Keep files small and modular. Prefer returning only the changed function over rewriting whole files.
-- Levels are data (JSON or Tiled), not hard-coded.
-- Only use art, sound, and fonts with a license that allows commercial use; record the source in `CREDITS.md`.
+Hard rules, repeated here so they are never missed:
+- Phaser 4 (see `package.json`), Vite, plain JavaScript. Do not use Phaser 3 APIs without checking them against v4. No new dependencies without asking.
+- All analytics goes through `track()` in `src/analytics/track.js`. Never log personal data. The persistent player ID stays off unless the owner says otherwise.
+- No ads. Do not implement purchases, Capacitor, Electron, or accounts until asked.
+- Never commit secrets (the repo is public) or any asset without a verified license. No Nintendo/Zelda or other copyrighted game art, even as placeholders. Record every asset in `CREDITS.md`.
+- Load assets by key, make levels data (JSON/Tiled), and map touch, keyboard, and gamepad to the same actions.
+- `main` auto-deploys to GitHub Pages. Run `npm run build` before pushing and do not leave `main` broken.
+- Return only the changed function or a diff, work in small slices, and say what you did not test.
