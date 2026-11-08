@@ -10,7 +10,9 @@ Read this before changing anything. It is the single source of truth for coding 
 
 ## Stack (do not change without asking)
 - **Phaser 4.2.1.** Most tutorials and training data are for Phaser 3. APIs differ between major versions: check `package.json` for the installed version and verify against the Phaser 4 docs before using an API from memory.
+- Before using a Phaser API, verify its signature in `node_modules/phaser/types/`; do not rely on Phaser 3 examples or memory.
 - **Vite** for dev server and build. **TypeScript in strict mode**, ES modules, no framework. Keep `strict` on: avoid `any` and `@ts-ignore` (explain in a comment if one is truly needed), and give event props, level data, and platform interfaces real types.
+- Never weaken type checks, remove tests, or skip checks to get a passing build.
 - **Node 22 LTS.** `npm ci` in CI, `npm install` locally.
 - Runtime dependencies: Phaser only. Ask before adding any dependency.
 - Commands: `npm run dev`, `npm run typecheck`, `npm run build` (runs the type check first, so type errors fail the deploy), `npm run preview`.
@@ -27,6 +29,7 @@ CREDITS.md                      source and license of every third-party asset
 .github/workflows/deploy.yml    builds and deploys to GitHub Pages on push to main
 ```
 Keep files small and modular so edits need little context. Split new scenes (menu, game, UI overlay, game over) into separate files rather than growing one.
+- Put tunable gameplay values (such as speed, damage, spawn rates, and timers) in `src/config/tuning.ts`; bump the package version for each experiment so analytics can identify the build.
 
 ## Platform targets and what that means now
 - **Today: web only.** Free hosting, no purchases, no ads.
@@ -49,6 +52,7 @@ Keep files small and modular so edits need little context. Split new scenes (men
 - All analytics goes through `track(eventName, props)` in `src/analytics/track.ts`. **Never call an analytics SDK or `fetch` for telemetry anywhere else.**
 - Events are anonymous. **Never log** names, emails, precise location, IP addresses, free-text input, or anything that identifies a person.
 - Every event automatically carries the build version and a random in-memory session ID.
+- The analytics build version comes from `package.json`; do not hard-code it separately.
 - The **persistent player ID** (needed for day-1/day-7 retention) is OFF by default (`ENABLE_PERSISTENT_ID = false`). Do not turn it on without the owner. Turning it on requires updating the privacy policy and deciding whether a consent prompt is needed.
 - Do not add cross-site/cross-app tracking, cookies, or fingerprinting. Keep any consent need minimal.
 - The game is for a **general audience, not aimed at children.** Do not add features or marketing that target kids (this triggers COPPA-style rules).
@@ -81,6 +85,12 @@ Keep files small and modular so edits need little context. Split new scenes (men
 - Do **not** build a custom level editor unless the owner asks. Hand-written JSON or Tiled covers a game this small.
 - Tiled layer and object names must match what the code expects; check them when loading.
 
+## Testing
+- Add focused tests for new game logic once real mechanics exist; bug fixes should include a regression test when practical.
+- Keep logic deterministic for tests: inject time and randomness instead of calling `Date.now()` or `Math.random()` inside game logic.
+- Do not add a test runner until there is real logic to test and the owner approves the dependency. When tests are configured, run them with the type check and build before committing; CI must run them before deploying.
+- Test behavior, not coverage percentages. Name tests for the behavior they verify, and never delete, skip, or weaken tests to make checks pass.
+
 ## Security and repo hygiene
 - The repo is public. **Never commit secrets:** API keys, tokens, `.env` files, cloud or AI-service credentials. `.env*` is gitignored.
 - A public analytics project key is fine in client code. A secret or personal API key is not. If a secret is ever committed, deleting it is not enough: tell the owner to revoke it immediately.
@@ -90,6 +100,8 @@ Keep files small and modular so edits need little context. Split new scenes (men
 
 ## Phaser pitfalls to avoid
 - Version confusion (see Stack). Do not paste Phaser 3 code without checking it against v4.
+- Use frame delta time for movement and timers so behavior does not depend on frame rate.
+- Do not create game objects in `update()`; reuse objects and pool frequently spawned objects.
 - Putting everything in one scene. Split early.
 - **Memory leaks:** destroy sprites, listeners, timers, and tweens when a scene shuts down (`this.events.once('shutdown', ...)`). Long sessions otherwise slow down.
 - Arcade physics is fast but limited (no rotated shapes, no realistic stacking). Do not stretch it; raise it with the owner if the design needs more.
@@ -103,6 +115,7 @@ Keep files small and modular so edits need little context. Split new scenes (men
 - Do not read the whole codebase for a narrow change; open only the files involved.
 - Use scripts and tools for mechanical work (slicing sprite sheets, generating level JSON, batch-resizing with nearest-neighbor) instead of doing it by hand.
 - Prefer the simplest thing that works. This is a deliberately small game: no abstractions, systems, or dependencies "for later" unless asked.
+- Keep each change focused; avoid unrelated refactors and reformatting.
 - State assumptions and anything unverified (for example, "not tested on a phone") plainly. Do not claim something works until it has been built or run.
 - Record project decisions in this file so they are not re-litigated.
 

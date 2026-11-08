@@ -9,7 +9,6 @@
 
 const ENABLE_PERSISTENT_ID = false as boolean;
 const ENDPOINT = null as string | null; // set to your analytics ingest URL when you pick a tool
-const BUILD_VERSION = '0.1.0';
 
 export type EventProps = Record<string, string | number | boolean>;
 
@@ -46,7 +45,7 @@ export function track(event: string, props: EventProps = {}): void {
   const payload: TrackPayload = {
     event,
     props,
-    build: BUILD_VERSION,
+    build: __BUILD_VERSION__,
     sessionId,
     playerId: getPersistentId(),
     ts: Date.now(),
