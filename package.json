@@ -4,13 +4,15 @@
   "description": "Flash Dungeon: a simple 2D web game built with Phaser and Vite",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "phaser": "^4.2.1"
   },
   "devDependencies": {
+    "typescript": "^7.0.2",
     "vite": "^8.3.6"
   },
   "private": true,

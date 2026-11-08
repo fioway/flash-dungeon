@@ -10,18 +10,18 @@ Read this before changing anything. It is the single source of truth for coding 
 
 ## Stack (do not change without asking)
 - **Phaser 4.2.1.** Most tutorials and training data are for Phaser 3. APIs differ between major versions: check `package.json` for the installed version and verify against the Phaser 4 docs before using an API from memory.
-- **Vite** for dev server and build. Plain **JavaScript ES modules**, no TypeScript, no framework.
+- **Vite** for dev server and build. **TypeScript in strict mode**, ES modules, no framework. Keep `strict` on: avoid `any` and `@ts-ignore` (explain in a comment if one is truly needed), and give event props, level data, and platform interfaces real types.
 - **Node 22 LTS.** `npm ci` in CI, `npm install` locally.
 - Runtime dependencies: Phaser only. Ask before adding any dependency.
-- Commands: `npm run dev`, `npm run build`, `npm run preview`.
+- Commands: `npm run dev`, `npm run typecheck`, `npm run build` (runs the type check first, so type errors fail the deploy), `npm run preview`.
 - `vite.config.js` sets `base: './'` (relative). Keep it, so the build works on GitHub Pages subpaths, itch.io, and inside a Capacitor wrapper.
 
 ## Structure
 ```
 index.html                      page shell
-src/main.js                     game config and boot
+src/main.ts                     game config and boot
 src/scenes/                     one scene per file
-src/analytics/track.js          the ONLY place analytics code lives
+src/analytics/track.ts          the ONLY place analytics code lives
 public/assets/                  images, audio, level files
 CREDITS.md                      source and license of every third-party asset
 .github/workflows/deploy.yml    builds and deploys to GitHub Pages on push to main
@@ -46,7 +46,7 @@ Keep files small and modular so edits need little context. Split new scenes (men
 - No accounts, no game server. Purchases and saves stay per-platform.
 
 ## Analytics and privacy (important)
-- All analytics goes through `track(eventName, props)` in `src/analytics/track.js`. **Never call an analytics SDK or `fetch` for telemetry anywhere else.**
+- All analytics goes through `track(eventName, props)` in `src/analytics/track.ts`. **Never call an analytics SDK or `fetch` for telemetry anywhere else.**
 - Events are anonymous. **Never log** names, emails, precise location, IP addresses, free-text input, or anything that identifies a person.
 - Every event automatically carries the build version and a random in-memory session ID.
 - The **persistent player ID** (needed for day-1/day-7 retention) is OFF by default (`ENABLE_PERSISTENT_ID = false`). Do not turn it on without the owner. Turning it on requires updating the privacy policy and deciding whether a consent prompt is needed.
@@ -110,5 +110,5 @@ Keep files small and modular so edits need little context. Split new scenes (men
 - Add dependencies, a game server, accounts, or a database.
 - Add ads, purchases, wrappers (Capacitor/Electron), or store code.
 - Enable the persistent player ID or add new data collection.
-- Change the stack, base resolution, or `base: './'`.
+- Change the stack, loosen TypeScript strictness, change the base resolution, or change `base: './'`.
 - Use any third-party asset not listed in `CREDITS.md`.

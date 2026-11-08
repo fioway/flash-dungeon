@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import { GameScene } from './scenes/GameScene.js';
-import { track } from './analytics/track.js';
+import { GameScene } from './scenes/GameScene';
+import { track } from './analytics/track';
 
-const config = {
+const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game',
   backgroundColor: '#1d2230',

@@ -7,7 +7,8 @@ A simple Flash-style 2D browser game built with Phaser and Vite.
 ```
 npm install
 npm run dev       # local dev server with hot reload
-npm run build     # production build into dist/
+npm run typecheck  # type-check without building
+npm run build      # type-check, then production build into dist/
 npm run preview   # serve the production build locally
 ```
 
@@ -18,9 +19,9 @@ Requires a current Node.js LTS.
 ```
 index.html                      page shell
 vite.config.js                  build config (relative base for any host)
-src/main.js                     game config and boot
-src/scenes/GameScene.js         placeholder scene (movement via keys or touch)
-src/analytics/track.js          the only place analytics code lives
+src/main.ts                     game config and boot
+src/scenes/GameScene.ts         placeholder scene (movement via keys or touch)
+src/analytics/track.ts          the only place analytics code lives
 public/assets/                  images, audio, level files
 .github/copilot-instructions.md conventions for AI coding tools
 ```
@@ -29,7 +30,7 @@ public/assets/                  images, audio, level files
 
 All events go through `track(name, props)`. With no `ENDPOINT` set, events are
 printed to the browser console only. The persistent player ID (needed for
-day-1 / day-7 retention) is off by default; see `src/analytics/track.js`
+day-1 / day-7 retention) is off by default; see `src/analytics/track.ts`
 before turning it on, and update the privacy policy when you do.
 
 ## Deploying

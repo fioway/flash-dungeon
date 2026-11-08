@@ -1,14 +1,21 @@
 import Phaser from 'phaser';
-import { track } from '../analytics/track.js';
+import { track } from '../analytics/track';
+
+type WasdKeys = Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
 
 // Placeholder scene: a square you can move with arrow keys / WASD or by
 // touching/clicking where you want it to go. Replace with real gameplay.
 export class GameScene extends Phaser.Scene {
+  private player!: Phaser.GameObjects.Rectangle;
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private wasd!: WasdKeys;
+  private target: Phaser.Math.Vector2 | null = null;
+
   constructor() {
     super('GameScene');
   }
 
-  create() {
+  create(): void {
     this.add
       .text(8, 8, 'It works. Move with arrows/WASD or tap.', {
         fontFamily: 'monospace',
@@ -20,23 +27,24 @@ export class GameScene extends Phaser.Scene {
     // Stand-in for a sprite. Swap for this.physics.add.sprite('player') later.
     this.player = this.add.rectangle(240, 135, 16, 16, 0x6cc4ff);
     this.physics.add.existing(this.player);
-    this.player.body.setCollideWorldBounds(true);
+    this.body().setCollideWorldBounds(true);
 
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.wasd = this.input.keyboard.addKeys('W,A,S,D');
-    this.target = null;
+    const keyboard = this.input.keyboard;
+    if (!keyboard) throw new Error('Keyboard input is unavailable');
+    this.cursors = keyboard.createCursorKeys();
+    this.wasd = keyboard.addKeys('W,A,S,D') as WasdKeys;
 
     // Pointer / touch: move toward where the player taps.
-    this.input.on('pointerdown', (pointer) => {
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       this.target = new Phaser.Math.Vector2(pointer.worldX, pointer.worldY);
     });
 
     track('level_start', { level: 1 });
   }
 
-  update() {
+  update(): void {
     const speed = 90;
-    const body = this.player.body;
+    const body = this.body();
     body.setVelocity(0);
 
     const left = this.cursors.left.isDown || this.wasd.A.isDown;
@@ -46,7 +54,10 @@ export class GameScene extends Phaser.Scene {
 
     if (left || right || up || down) {
       this.target = null; // keyboard overrides touch target
-      body.setVelocity((right - left) * speed, (down - up) * speed);
+      body.setVelocity(
+        (Number(right) - Number(left)) * speed,
+        (Number(down) - Number(up)) * speed,
+      );
     } else if (this.target) {
       const dist = Phaser.Math.Distance.Between(
         this.player.x,
@@ -62,5 +73,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     body.velocity.limit(speed);
+  }
+
+  private body(): Phaser.Physics.Arcade.Body {
+    return this.player.body as Phaser.Physics.Arcade.Body;
   }
 }
